@@ -1,0 +1,29 @@
+{ "name": "svg-shape-to-path-pmb",
+  "version": "0.0.0",
+  "description": "Convert popular SVG shape tags (circle, ellipse, polygon, rect) to path tags.",
+  "keywords": [],
+
+  "author": "M.K. (https://github.com/mk-pmb)",
+  "homepage": "https://github.com/mk-pmb/svg-shape-to-path-pmb-js/#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mk-pmb/svg-shape-to-path-pmb-js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mk-pmb/svg-shape-to-path-pmb-js/issues"
+  },
+  "contributors": [],
+
+  "private": false, "license": "ISC",
+
+  "scripts": { "test": "elp && nodemjs test/all.mjs" },
+  "directories": { "test": "test" },
+  "eslintConfig": { "extends": "nodejs-pmb" },
+
+  "dependencies": {},
+  "devDependencies": {
+  },
+
+
+  "engines": { "npm": ">=7.0.0", "node": ">=16.0.0" }
+}
