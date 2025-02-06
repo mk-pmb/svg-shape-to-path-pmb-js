@@ -93,8 +93,9 @@
 
     scaleOneSvgTag: (function compile() {
       function easyScale(o, k, s) {
-        const v = (+o[k] || false);
-        return v && { [k]: (v * s).toFixed(0) };
+        const v = +o[k];
+        if (!v) { return; }
+        o[k] = (v * s).toFixed(0); // eslint-disable-line no-param-reassign
       }
       easyScale.x = ['x', 'width', 'cx', 'rx'];
       easyScale.y = ['y', 'height', 'cy', 'ry'];

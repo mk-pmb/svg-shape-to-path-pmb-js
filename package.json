@@ -1,5 +1,5 @@
 { "name": "svg-shape-to-path-pmb",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Convert popular SVG shape tags (circle, ellipse, polygon, rect) to path tags.",
   "keywords": [],
 
