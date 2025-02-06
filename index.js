@@ -1,8 +1,17 @@
 'use strict';
 (function namespace() {
+  const numFin = Number.isFinite;
+
+
+  function errDeprecatedXmlAttrDictConvenience() {
+    const msg = ('The shape2path invocation for xmlattrdict convenience'
+      + ' has changed in v0.2.0. Please update your code accordingly.');
+    throw new Error(msg);
+  }
+
 
   const EX = function shape2path(tag, attr) {
-    if (tag['']) { return EX(tag[''], tag); }
+    if (tag['']) { errDeprecatedXmlAttrDictConvenience(); }
     const impl = EX.supportedShapes[tag];
     // ^-- If your SVG has <toString> tags, you're doing it wrong.
     if (impl && impl.call) { return impl(attr); }
@@ -15,7 +24,11 @@
   EX.numRxBody = rxBody(/[\+\-]?(?:\d*\.|)\d+(?:[eE][\+\-]?\d+|)/);
   // ^-- see `docs/numRxBody.md` for a breakdown of this RegExp.
 
+  EX.numPairRxBody = '(' + EX.numRxBody + ')\\s*,\\s*(' + EX.numRxBody + ')';
 
+
+  function isStr(x, no) { return (((typeof x) === 'string') || no); }
+  function isset(x) { return (!!x) || (x === 0); }
   function words(s) { return String(s).match(/\S+/g) || 0; }
 
   function ellipse({ cx, cy, rx, ry }) {
@@ -36,7 +49,15 @@
       + " Z' />");
   }
 
+
   Object.assign(EX, {
+
+    xad(attr) {
+      const tn = attr[''];
+      if (isStr(tn)) { return EX(tn, attr); }
+      throw new TypeError('xmlattrdict tag name must be a string');
+    },
+
 
     supportedShapes: {
       circle({ cx, cy, r }) { return ellipse({ cx, cy, rx: r, ry: r }); },
@@ -56,6 +77,57 @@
       },
 
     },
+
+
+    transformPoints: (function compile() {
+      function f(n, s) { return ((+n || 0) * s).toFixed(0); }
+      const t = function transformPoints(scaleFactors, origPoints) {
+        const { x, y } = scaleFactors;
+        function g(m, px, py) { return f(px, x) + ',' + f(py, y); }
+        return String(origPoints || '').replace(t.rx, g);
+      };
+      t.rx = new RegExp(EX.numPairRxBody, 'g');
+      return t;
+    }()),
+
+
+    scaleOneSvgTag: (function compile() {
+      function easyScale(o, k, s) {
+        const v = (+o[k] || false);
+        return v && { [k]: (v * s).toFixed(0) };
+      }
+      easyScale.x = ['x', 'width', 'cx', 'rx'];
+      easyScale.y = ['y', 'height', 'cy', 'ry'];
+
+      const circ = 'circle';
+      const elli = 'ellipse';
+      const sost = function scaleOneSvgTag(how, attr, tagName) {
+        const cfg = (numFin(how) ? { x: how, y: how } : { ...how });
+        if ((cfg.x === 1) && (cfg.y === 1)) { return attr; }
+        const out = { ...attr };
+        out[''] ||= isStr(tagName, '') && tagName;
+        if (isset(out.r)) {
+          if (out[''] === circ) { out[''] = elli; }
+          out[''] ||= elli;
+          out.rx = out.r;
+          out.ry = out.r;
+          delete out.r;
+        }
+        easyScale.x.forEach(k => easyScale(out, k, cfg.x));
+        easyScale.y.forEach(k => easyScale(out, k, cfg.y));
+        if ((out[''] === elli) && (out.rx === out.ry)) {
+          out[''] = circ;
+          out.r = out.rx;
+          delete out.rx;
+          delete out.ry;
+        }
+        if (out.points) { out.points = EX.transformPoints(cfg, out.points); }
+        return out;
+      };
+      return sost;
+    }()),
+
+
 
 
   });
