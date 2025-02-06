@@ -9,6 +9,13 @@
     return (tag['<>'] || '');
   };
 
+
+  function rxBody(rx) { return rx.source || String(rx).slice(1, -1); }
+
+  EX.numRxBody = rxBody(/[\+\-]?(?:\d*\.|)\d+(?:[eE][\+\-]?\d+|)/);
+  // ^-- see `docs/numRxBody.md` for a breakdown of this RegExp.
+
+
   function words(s) { return String(s).match(/\S+/g) || 0; }
 
   function ellipse({ cx, cy, rx, ry }) {
